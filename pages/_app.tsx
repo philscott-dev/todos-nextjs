@@ -98,11 +98,8 @@ class _App extends App<IProps> {
         </Head>
         <ApolloProvider client={apolloClient}>
           <div className="container-fluid fill">
-            <Navbar 
-              title={'Todos'}
-              stack={['Next.js', 'Apollo']}
-            />
-             
+            <Navbar title={'Todos'} stack={['Next.js', 'Apollo']} />
+
             <PageTransition timeout={300} classNames="page-transition">
               <Component {...pageProps} key={router.route} />
             </PageTransition>
