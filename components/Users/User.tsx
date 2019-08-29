@@ -6,6 +6,7 @@ interface IUserProps {
   name?: string
   photo?: string
   isSelected?: boolean
+  style?: any
   onClick: Function
 }
 
@@ -26,10 +27,10 @@ const User = ({ name, isSelected, onClick }: IUserProps) => {
 const Card = styled.button<{ isSelected?: boolean }>`
   display: flex;
   align-items: center;
-  height: 72px;
+  /* height: 72px;
   min-height: 72px;
   padding: 16px;
-  margin-bottom: 16px;
+  margin-bottom: 16px; */
   background: #1a936f;
   border-radius: 2px;
   box-sizing: border-box;

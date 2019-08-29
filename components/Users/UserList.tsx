@@ -5,7 +5,7 @@ import { FixedSizeList as List } from 'react-window'
 import { useQuery, useMutation } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 // import { IUser } from '../../models/user.model'
-// import User from './User'
+import User from './User'
 
 // Query for User List
 export const GET_USERS = gql`
@@ -76,14 +76,6 @@ const UserList = (props: any) => {
 
   if (loading) return <p>Loading...</p>
 
-  const Item = ({ index, style }: { index: number; style: any }) => {
-    return (
-      <div onClick={() => handleSetActiveUser('')} style={style}>
-        {index}
-      </div>
-    )
-  }
-
   return (
     <Container>
       <Title>Users</Title>
@@ -94,15 +86,25 @@ const UserList = (props: any) => {
       >
         {({ onItemsRendered, ref }) => (
           <List
+            ref={ref}
             className="List"
             height={150}
             itemCount={data.users.payload.length}
-            itemSize={30}
+            itemSize={72}
             onItemsRendered={onItemsRendered}
-            ref={ref}
             width={300}
           >
-            {Item}
+            {({ index, style }) => {
+              const user = data.users.payload[index]
+              return (
+                <User
+                  style={style}
+                  name={user.name}
+                  isSelected={user.isSelected || false}
+                  onClick={() => handleSetActiveUser(user.name)}
+                />
+              )
+            }}
           </List>
         )}
       </InfiniteLoader>
