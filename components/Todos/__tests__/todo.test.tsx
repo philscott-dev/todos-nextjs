@@ -1,9 +1,11 @@
 import React from 'react'
-import { render } from '@testing-library/react'
+import { render, RenderResult } from '@testing-library/react'
 import Todo from '../Todo'
 describe('Todo', () => {
-  it('works', () => {
-    const mock = render(
+  let mock: RenderResult
+
+  beforeEach(() => {
+    mock = render(
       <Todo
         id={'1'}
         isComplete={false}
@@ -13,6 +15,9 @@ describe('Todo', () => {
         dueDate={new Date().toISOString()}
       />,
     )
-    mock.debug()
+  })
+
+  it('renders properly with given props', () => {
+    expect(mock.baseElement).toBeTruthy()
   })
 })
