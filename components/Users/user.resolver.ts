@@ -7,6 +7,25 @@ const GET_SELECTED_USER = gql`
   }
 `
 
+const updateUserFragment = (
+  cache: InMemoryCache,
+  id: string,
+  isSelected: boolean,
+) => {
+  cache.writeFragment({
+    id: `User:${id}`,
+    fragment: gql`
+      fragment user on User {
+        isSelected
+      }
+    `,
+    data: {
+      __typename: 'User',
+      isSelected,
+    },
+  })
+}
+
 interface ActiveUserResults {
   selectedUser: string
 }
@@ -15,10 +34,17 @@ const userResolver = {
   Mutation: {
     setSelectedUser: (
       _: any,
-      { name }: { name: string },
+      { user }: { user: IUser },
       { cache }: { cache: InMemoryCache },
     ) => {
-      cache.writeData({ data: { selectedUser: name } })
+      const selectedUser = cache.readQuery<ActiveUserResults>({
+        query: GET_SELECTED_USER,
+      })!.selectedUser
+
+      updateUserFragment(cache, selectedUser, false)
+      updateUserFragment(cache, user.id, true)
+
+      cache.writeData({ data: { selectedUser: user.id } })
       return null
     },
   },
@@ -31,7 +57,7 @@ const userResolver = {
       const selectedUser = cache.readQuery<ActiveUserResults>({
         query: GET_SELECTED_USER,
       })!.selectedUser
-      return selectedUser === user.name
+      return selectedUser === user.id
     },
   },
 }

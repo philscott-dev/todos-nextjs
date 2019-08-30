@@ -1,10 +1,11 @@
 import React from 'react'
 import styled from '@emotion/styled'
 import InfiniteLoader from 'react-window-infinite-loader'
+import User from './User'
 import { FixedSizeList as List } from 'react-window'
 import { useQuery, useMutation } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
-import User from './User'
+import { IUser } from '../../models/user.model'
 
 const GUTTER_SIZE = 16
 
@@ -30,74 +31,78 @@ export const GET_USERS = gql`
 
 //  Mutation for Client-Side Mutation
 const SET_SELECTED_USER = gql`
-  mutation SetSelectedUser($name: String!) {
-    setSelectedUser(name: $name) @client
+  mutation SetSelectedUser($user: User!) {
+    setSelectedUser(user: $user) @client
   }
 `
 
 const UserList = (props: any) => {
   const [setSelectedUser] = useMutation(SET_SELECTED_USER)
+
   const { loading, data, fetchMore } = useQuery(GET_USERS, {
-    variables: { limit: 10 },
+    variables: { limit: 10, page: 1 },
   })
 
-  const handleSetActiveUser = (name: string) => {
+  const handleSetActiveUser = (user: IUser) => {
     setSelectedUser({
-      variables: { name },
-      refetchQueries: [
-        {
-          query: GET_USERS,
-        },
-      ],
+      variables: { user: user },
     }).then(() => {
-      props.onSelectUser(name)
+      props.onSelectUser(user.name)
     })
   }
 
-  const handleFetchMore = (startIndex: number, stopIndex: number) => {
-    console.log(startIndex, stopIndex)
+  const loadMoreItems = (_startIndex: number, _stopIndex: number) => {
     if (loading) return new Promise((resolve) => resolve())
+    const prevPage = parseInt(data.users.page, 10)
     return fetchMore({
-      variables: { limit: 10 },
+      variables: { limit: 10, page: prevPage + 1 },
       updateQuery: (prev, { fetchMoreResult }) => {
-        //keep the prev results since we're using window-infinite-loader
-        return [...prev, fetchMoreResult]
+        const users = {
+          ...prev.users,
+          ...fetchMoreResult.users,
+          payload: [...prev.users.payload, ...fetchMoreResult.users.payload],
+        }
+        return { users }
       },
     })
   }
 
   //Todo: Really fix this
   const isItemLoaded = (index: number): boolean => {
-    if (typeof index) {
-      return true
-    }
-    return true
+    return index < data.users.payload.length
   }
 
   if (!data || loading) return <p>Loading...</p>
+  const { payload, totalCount } = data.users
+
+  const itemCount =
+    payload.length < totalCount ? payload.length + 1 : payload.length
 
   return (
     <Container>
       <Title>Users</Title>
       <InfiniteLoader
         isItemLoaded={isItemLoaded}
-        itemCount={data.users.payload.length}
-        loadMoreItems={handleFetchMore}
+        itemCount={itemCount}
+        loadMoreItems={loadMoreItems}
       >
         {({ onItemsRendered, ref }) => (
           <List
             ref={ref}
             className="List"
-            itemCount={data.users.payload.length}
+            itemCount={itemCount}
             itemSize={72 + GUTTER_SIZE}
             onItemsRendered={onItemsRendered}
-            height={150}
+            height={750}
             width={'100%'}
           >
             {({ index, style }) => {
               const user = data.users.payload[index]
-              return (
+              return !isItemLoaded(index) ? (
+                <p>Loading...</p>
+              ) : (
                 <User
+                  isLoaded={!isItemLoaded(index)}
                   style={{
                     ...style,
                     paddingTop: GUTTER_SIZE,
@@ -106,7 +111,7 @@ const UserList = (props: any) => {
                   }}
                   name={user.name}
                   isSelected={user.isSelected || false}
-                  onClick={() => handleSetActiveUser(user.name)}
+                  onClick={() => handleSetActiveUser(user)}
                 />
               )
             }}

@@ -8,6 +8,7 @@ interface IUserProps {
   isSelected?: boolean
   style?: any
   onClick: Function
+  isLoaded: boolean
 }
 
 const User = ({ name, isSelected, onClick, style }: IUserProps) => {
