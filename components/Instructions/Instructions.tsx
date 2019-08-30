@@ -44,4 +44,4 @@ const Li = styled.li`
   margin-top: 16px;
 `
 
-export default Instructions
+export default React.memo(Instructions)
