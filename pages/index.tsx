@@ -1,17 +1,17 @@
 import React, { useState } from 'react'
-import { useRouter } from 'next/router'
+import Router from 'next/router'
+import cookie from 'cookie'
 import { useMutation, useApolloClient } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 import { UserList } from '../components/Users'
+import { Instructions } from '../components/Instructions'
+import { IFormData } from '../components/FormElements/Form'
 import {
   Form,
   Input,
   SubmitButton,
   StyledInput,
 } from '../components/FormElements'
-import { Instructions } from '../components/Instructions'
-import { IFormData } from '../components/FormElements/Form'
-import cookie from 'cookie'
 
 // Mutation for Login or Create
 const LOGIN_OR_CREATE = gql`
@@ -25,9 +25,7 @@ const LOGIN_OR_CREATE = gql`
 
 // React Component
 const Index = () => {
-  const router = useRouter()
   const client = useApolloClient()
-
   const [loginOrCreate] = useMutation(LOGIN_OR_CREATE)
   const [username, setUsername] = useState('')
 
@@ -41,7 +39,7 @@ const Index = () => {
         maxAge: expiresIn,
         path: '/',
       })
-      client.cache.reset().then(() => router.replace('/todos/list'))
+      client.cache.reset().then(() => Router.replace('/todos/list'))
     } catch (err) {
       console.log(err)
     }

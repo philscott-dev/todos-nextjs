@@ -1,18 +1,12 @@
 import React, { useState } from 'react'
+import Router from 'next/router'
 import { gql } from 'apollo-boost'
 import { useMutation, useQuery } from '@apollo/react-hooks'
-import Router from 'next/router'
+import { addTimezoneOffset } from '../../lib/helpers'
 import { UserStats } from '../../components/Users'
 import { TodoList } from '../../components/Todos'
 import { Form, SubmitButton, StyledInput } from '../../components/FormElements'
 import { IUser } from '../../models/user.model'
-
-const addTimezoneOffset = (dateString: string) => {
-  const date = new Date(dateString)
-  const timeOffsetInMS = date.getTimezoneOffset() * 60000
-  const dateWithOffset = date.setTime(date.getTime() + timeOffsetInMS)
-  return new Date(dateWithOffset)
-}
 
 export const GET_USER = gql`
   query GetUser {

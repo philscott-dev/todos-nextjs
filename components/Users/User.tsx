@@ -10,12 +10,12 @@ interface IUserProps {
   onClick: Function
 }
 
-const User = ({ name, isSelected, onClick }: IUserProps) => {
+const User = ({ name, isSelected, onClick, style }: IUserProps) => {
   const handleClick = () => {
     onClick()
   }
   return (
-    <Card isSelected={isSelected} onClick={handleClick}>
+    <Card style={style} isSelected={isSelected} onClick={handleClick}>
       <Circle>
         <FiUser />
       </Circle>
@@ -27,10 +27,6 @@ const User = ({ name, isSelected, onClick }: IUserProps) => {
 const Card = styled.button<{ isSelected?: boolean }>`
   display: flex;
   align-items: center;
-  /* height: 72px;
-  min-height: 72px;
-  padding: 16px;
-  margin-bottom: 16px; */
   background: #1a936f;
   border-radius: 2px;
   box-sizing: border-box;

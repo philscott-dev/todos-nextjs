@@ -1,13 +1,13 @@
 import React, { useRef, useState } from 'react'
 import Router from 'next/router'
 import cookie from 'cookie'
-import { gql } from 'apollo-boost'
 import styled from '@emotion/styled'
+import ReactTooltip from 'react-tooltip'
+import { gql } from 'apollo-boost'
 import { Circle, Text as Username } from './User'
 import { parseISO, format } from 'date-fns'
 import { FiUser, FiLogOut } from 'react-icons/fi'
-import { useMutation } from '@apollo/react-hooks'
-import ReactTooltip from 'react-tooltip'
+import { useMutation, useApolloClient } from '@apollo/react-hooks'
 import { Tooltip } from '../Tooltip'
 
 export const REMOVE_USER = gql`
@@ -27,6 +27,7 @@ interface IUserStatsProps {
 type TooltipRef = { tooltipRef: null } | null
 
 const UserStats = ({ name, createdDate, todoCount = 0 }: IUserStatsProps) => {
+  const client = useApolloClient()
   const tooltip = useRef(null)
   const [isOpen, setTooltipOpen] = useState(false)
   const [removeUser] = useMutation(REMOVE_USER)
@@ -42,7 +43,7 @@ const UserStats = ({ name, createdDate, todoCount = 0 }: IUserStatsProps) => {
   const handleDeleteAccount = async () => {
     try {
       await removeUser()
-      Router.replace('/')
+      client.cache.reset().then(() => Router.reload())
     } catch (err) {
       console.log(err)
     }
@@ -54,7 +55,7 @@ const UserStats = ({ name, createdDate, todoCount = 0 }: IUserStatsProps) => {
         maxAge: -1,
         path: '/',
       })
-      Router.replace('/')
+      client.cache.reset().then(() => Router.reload())
     } catch (err) {
       console.log(err)
     }

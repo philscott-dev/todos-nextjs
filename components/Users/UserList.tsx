@@ -4,8 +4,9 @@ import InfiniteLoader from 'react-window-infinite-loader'
 import { FixedSizeList as List } from 'react-window'
 import { useQuery, useMutation } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
-// import { IUser } from '../../models/user.model'
 import User from './User'
+
+const GUTTER_SIZE = 16
 
 // Query for User List
 export const GET_USERS = gql`
@@ -34,15 +35,11 @@ const SET_SELECTED_USER = gql`
   }
 `
 
-// interface IClientUser extends IUser {
-//   isSelected: boolean
-// }
-
 const UserList = (props: any) => {
+  const [setSelectedUser] = useMutation(SET_SELECTED_USER)
   const { loading, data, fetchMore } = useQuery(GET_USERS, {
     variables: { limit: 10 },
   })
-  const [setSelectedUser] = useMutation(SET_SELECTED_USER)
 
   const handleSetActiveUser = (name: string) => {
     setSelectedUser({
@@ -69,12 +66,15 @@ const UserList = (props: any) => {
     })
   }
 
+  //Todo: Really fix this
   const isItemLoaded = (index: number): boolean => {
-    console.log(index)
+    if (typeof index) {
+      return true
+    }
     return true
   }
 
-  if (loading) return <p>Loading...</p>
+  if (!data || loading) return <p>Loading...</p>
 
   return (
     <Container>
@@ -88,17 +88,22 @@ const UserList = (props: any) => {
           <List
             ref={ref}
             className="List"
-            height={150}
             itemCount={data.users.payload.length}
-            itemSize={72}
+            itemSize={72 + GUTTER_SIZE}
             onItemsRendered={onItemsRendered}
-            width={300}
+            height={150}
+            width={'100%'}
           >
             {({ index, style }) => {
               const user = data.users.payload[index]
               return (
                 <User
-                  style={style}
+                  style={{
+                    ...style,
+                    paddingTop: GUTTER_SIZE,
+                    paddingBottom: GUTTER_SIZE,
+                    height: parseInt(String(style.height)) - GUTTER_SIZE,
+                  }}
                   name={user.name}
                   isSelected={user.isSelected || false}
                   onClick={() => handleSetActiveUser(user.name)}
@@ -111,22 +116,6 @@ const UserList = (props: any) => {
     </Container>
   )
 }
-
-// <Scrollable>
-//       { data.users.payload.length
-//         ? data.users.payload.map((user: IClientUser) => (
-//           <User
-//             key={user.id}
-//             name={user.name}
-//             photo={user.photo}
-//             isSelected={user.isSelected || false}
-//             onClick={()=> handleSetActiveUser(user.name)}
-//           />))
-//         : <PlaceholderText>
-//             No users yet. Make an account!
-//           </PlaceholderText>
-//       }
-//     </Scrollable>
 
 const Title = styled.h1`
   font-family: 'Poppins Light';
@@ -141,14 +130,6 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
 `
-
-// const Scrollable = styled.div`
-//   display: flex;
-//   flex-direction: column;
-//   overflow-y: auto;
-//   max-height: 700px;
-//   min-height: 700px;
-// `
 
 // const PlaceholderText = styled.p`
 //   font-family: 'Poppins Light';
