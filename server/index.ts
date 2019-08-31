@@ -1,3 +1,4 @@
+/* eslint-disable import/first */
 require('dotenv-extended').load()
 import 'reflect-metadata'
 import express from 'express'
@@ -15,7 +16,6 @@ import PagesRouter from './pages.routes'
 const app = express()
 app.use('/', PagesRouter)
 
-
 /* Server */
 async function main() {
   try {
@@ -25,10 +25,10 @@ async function main() {
     const apolloServer = new ApolloServer({
       typeDefs: schema,
       resolvers,
-      context: ({req}) => {
-        const {authorization} = cookie.parse(req.headers.cookie || '')
-        return {authorization}
-      }
+      context: ({ req }) => {
+        const { authorization } = cookie.parse(req.headers.cookie || '')
+        return { authorization }
+      },
     })
 
     apolloServer.applyMiddleware({ app, path: '/graphql' })
@@ -40,4 +40,3 @@ async function main() {
 }
 
 main()
-
